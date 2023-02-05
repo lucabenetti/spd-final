@@ -18,18 +18,18 @@ public class VacinaRepository extends BaseRepository {
     }
 
     public void Salvar(VacinaModel vacina){
-        String queryStr = "INSERT INTO vacinas values(?1, ?2, ?3, ?4, ?5, ?6)";
+        String queryStr = "INSERT INTO Vacinas values(?1, ?2, ?3, ?4, ?5, ?6)";
         try {
             EntityTransaction et = entityManager.getTransaction();
 
             et.begin();
             Query query = entityManager.createNativeQuery(queryStr);
             query.setParameter(1, vacina.getId());
-            query.setParameter(2, vacina.getDescricao());
-            query.setParameter(3, vacina.getDoses());
-            query.setParameter(4, vacina.getIntervalo());
+            query.setParameter(2, vacina.getTitulo());
+            query.setParameter(3, vacina.getDescricao());
+            query.setParameter(4, vacina.getDoses());
             query.setParameter(5, vacina.getPeriodicidade());
-            query.setParameter(6, vacina.getTitulo());
+            query.setParameter(6, vacina.getIntervalo());
             query.executeUpdate();
             et.commit();
 
@@ -40,7 +40,7 @@ public class VacinaRepository extends BaseRepository {
     }
 
     public List<VacinaModel> ObterTodos() {
-        String queryStr = "select id, descricao, doses, intervalo, periodicidade, titulo from vacinas";
+        String queryStr = "select id, descricao, doses, intervalo, periodicidade, titulo from Vacinas";
         try {
             var vacinas = new ArrayList<VacinaModel>();
             
@@ -66,7 +66,7 @@ public class VacinaRepository extends BaseRepository {
     }
 
     public VacinaModel ObterPorId(int id) {
-        String queryStr = "select id, descricao, doses, intervalo, periodicidade, titulo from vacinas where id = ?1";
+        String queryStr = "select id, descricao, doses, intervalo, periodicidade, titulo from Vacinas where id = ?1";
         try {
             var vacinas = new ArrayList<VacinaModel>();
             
@@ -95,7 +95,7 @@ public class VacinaRepository extends BaseRepository {
     }
 
     public int ObterId() {
-        var queryStr = "select max(id) from vacinas";
+        var queryStr = "select max(id) from Vacinas";
         
         try {
             
@@ -111,7 +111,7 @@ public class VacinaRepository extends BaseRepository {
     }
 
     public void deletarPorId(int id) {
-        String queryStr = "DELETE FROM vacinas where id = ?1";
+        String queryStr = "DELETE FROM Vacinas where id = ?1";
         try {
             EntityTransaction et = entityManager.getTransaction();
 

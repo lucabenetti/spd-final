@@ -11,13 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.luca.vacinacao.dtos.AgendaDTO;
 import com.luca.vacinacao.dtos.AtualizarAgendaDTO;
+import com.luca.vacinacao.dtos.DeletarDTO;
 import com.luca.vacinacao.dtos.FiltrarAgendaDTO;
 import com.luca.vacinacao.models.AgendaModel;
 import com.luca.vacinacao.repositories.AgendaRepository;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
+
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class AgendaController {
@@ -33,6 +35,7 @@ public class AgendaController {
     public void AtualizarStatus(@RequestBody AtualizarAgendaDTO agenda) throws Exception {
         if(agenda.situacao == "Realizada" || agenda.situacao == "Cancelada") {
             var repository = new AgendaRepository(entityManagerFactory);
+
             repository.AtualizarStatusAgenda(agenda);
         }
 
@@ -50,8 +53,8 @@ public class AgendaController {
     }
 
     @DeleteMapping(value="agendas/excluir")
-    public void Excluir(@RequestParam int id) {
+    public void Excluir(@RequestBody DeletarDTO dto) {
         var repository = new AgendaRepository(entityManagerFactory);
-        repository.deletarPorId(id);
+        repository.deletarPorId(dto.id);
     }
 }

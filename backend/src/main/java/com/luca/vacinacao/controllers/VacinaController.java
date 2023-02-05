@@ -8,11 +8,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.luca.vacinacao.dtos.DeletarDTO;
 import com.luca.vacinacao.dtos.VacinaDTO;
 import com.luca.vacinacao.models.VacinaModel;
 import com.luca.vacinacao.repositories.VacinaRepository;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
 
@@ -40,8 +41,8 @@ public class VacinaController {
     }
 
     @DeleteMapping(value="vacinas/excluir")
-    public void Excluir(@RequestParam int id) {
+    public void Excluir(@RequestBody DeletarDTO dto) {
         var repository = new VacinaRepository(entityManagerFactory);
-        repository.deletarPorId(id);
+        repository.deletarPorId(dto.id);
     }
 }

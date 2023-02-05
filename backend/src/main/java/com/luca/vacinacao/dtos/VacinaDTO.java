@@ -3,7 +3,6 @@ package com.luca.vacinacao.dtos;
 import com.luca.vacinacao.models.VacinaModel;
 
 public class VacinaDTO {
-    public int id;
     public String titulo;
     public String descricao;
     public int doses;

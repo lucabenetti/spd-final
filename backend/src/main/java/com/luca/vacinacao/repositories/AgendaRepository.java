@@ -1,4 +1,8 @@
 package com.luca.vacinacao.repositories;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -73,7 +77,7 @@ public class AgendaRepository extends BaseRepository {
     }
 
     public int ObterId() {
-        var queryStr = "select max(id) from alergias";
+        var queryStr = "select max(id) from Agendas";
         
         try {
             
@@ -89,7 +93,7 @@ public class AgendaRepository extends BaseRepository {
     }
 
     public List<AgendaModel> ObterAgendasAssociadaAoUsuario(int usuarioId) {
-        var queryStr = "select Agendas.id, Agendas.data, Agendas.situacao, Agendas.data_situacao, Agendas.observacoes, Vacinas.id, Vacinas.descricao, Vacinas.doses, Vacinas.intervalo, Vacinas.periodicidade, Vacinas.titulo, Usuarios.nome, Usuarios.data_nascimento, Usuarios.sexo, Usuarios.logradouro, Usuarios.numero, Usuarios.setor, Usuarios.uf  from Agendas inner join Vacinas on Agendas.vacinaid = Vacinas.id inner join Usuarios on Agendas.usuarioid = Usuarios.id where usuarioid = ?1";
+        var queryStr = "select Agendas.id, Agendas.data, Agendas.situacao, Agendas.data_situacao, Agendas.observacoes, Vacinas.id, Vacinas.descricao, Vacinas.doses, Vacinas.intervalo, Vacinas.periodicidade, Vacinas.titulo, Usuarios.id, Usuarios.nome, Usuarios.data_nascimento, Usuarios.sexo, Usuarios.logradouro, Usuarios.numero, Usuarios.setor, Usuarios.uf, Usuarios.cidade  from Agendas inner join Vacinas on Agendas.vacinaid = Vacinas.id inner join Usuarios on Agendas.usuarioid = Usuarios.id where usuarioid = ?1";
     
         try {
             var agendas = new ArrayList<AgendaModel>();
@@ -116,14 +120,14 @@ public class AgendaRepository extends BaseRepository {
 
                 var usuario = new UsuarioModel();
                 usuario.setId(ObterRegistroInt(coluna[11]));
-                usuario.setCidade(ObterRegistroString(coluna[12]));
+                usuario.setNome(ObterRegistroString(coluna[12]));
                 usuario.setData_nascimento(ObterRegistroData(coluna[13]));
-                usuario.setLogradouro(ObterRegistroString(coluna[14]));
-                usuario.setNome(ObterRegistroString(coluna[15]));
+                usuario.setSexo(ObterRegistroChar(coluna[14]));
+                usuario.setLogradouro(ObterRegistroString(coluna[15]));
                 usuario.setNumero(ObterRegistroInt(coluna[16]));
                 usuario.setSetor(ObterRegistroString(coluna[17]));
-                usuario.setSexo(ObterRegistroChar(coluna[18]));
-                usuario.setUf(ObterRegistroString(coluna[19]));
+                usuario.setUf(ObterRegistroString(coluna[18]));
+                usuario.setCidade(ObterRegistroString(coluna[19]));
                 
                 agenda.setUsuario(usuario);
                 agenda.setVacina(vacina);
@@ -138,7 +142,7 @@ public class AgendaRepository extends BaseRepository {
     }
 
     public List<AgendaModel> ObterTodos(FiltrarAgendaDTO filtrarAgendaDTO) {
-        var queryStr = "select Agendas.id, Agendas.data, Agendas.situacao, Agendas.data_situacao, Agendas.observacoes, Vacinas.id, Vacinas.descricao, Vacinas.doses, Vacinas.intervalo, Vacinas.periodicidade, Vacinas.titulo, Usuarios.nome, Usuarios.data_nascimento, Usuarios.sexo, Usuarios.logradouro, Usuarios.numero, Usuarios.setor, Usuarios.uf  from Agendas inner join Vacinas on Agendas.vacinaid = Vacinas.id inner join Usuarios on Agendas.usuarioid = Usuarios.id";
+        var queryStr = "select Agendas.id, Agendas.data, Agendas.situacao, Agendas.data_situacao, Agendas.observacoes, Vacinas.id, Vacinas.descricao, Vacinas.doses, Vacinas.intervalo, Vacinas.periodicidade, Vacinas.titulo, Usuarios.id, Usuarios.nome, Usuarios.data_nascimento, Usuarios.sexo, Usuarios.logradouro, Usuarios.numero, Usuarios.setor, Usuarios.uf, Usuarios.cidade  from Agendas inner join Vacinas on Agendas.vacinaid = Vacinas.id inner join Usuarios on Agendas.usuarioid = Usuarios.id";
 
         try {
             var agendas = new ArrayList<AgendaModel>();
@@ -165,14 +169,14 @@ public class AgendaRepository extends BaseRepository {
 
                 var usuario = new UsuarioModel();
                 usuario.setId(ObterRegistroInt(coluna[11]));
-                usuario.setCidade(ObterRegistroString(coluna[12]));
+                usuario.setNome(ObterRegistroString(coluna[12]));
                 usuario.setData_nascimento(ObterRegistroData(coluna[13]));
-                usuario.setLogradouro(ObterRegistroString(coluna[14]));
-                usuario.setNome(ObterRegistroString(coluna[15]));
+                usuario.setSexo(ObterRegistroChar(coluna[14]));
+                usuario.setLogradouro(ObterRegistroString(coluna[15]));
                 usuario.setNumero(ObterRegistroInt(coluna[16]));
                 usuario.setSetor(ObterRegistroString(coluna[17]));
-                usuario.setSexo(ObterRegistroChar(coluna[18]));
-                usuario.setUf(ObterRegistroString(coluna[19]));
+                usuario.setUf(ObterRegistroString(coluna[18]));
+                usuario.setCidade(ObterRegistroString(coluna[19]));
                 
                 agenda.setUsuario(usuario);
                 agenda.setVacina(vacina);
@@ -180,14 +184,30 @@ public class AgendaRepository extends BaseRepository {
             }
 
             if(filtrarAgendaDTO.filtrarSituacao) {
-                agendas.removeIf(x -> x.getSituacao().toUpperCase() != filtrarAgendaDTO.situacao.toUpperCase());
+                var agendaFiltrada = new ArrayList<AgendaModel>();
+                for (AgendaModel agendaz : agendas) {
+                    if(agendaz.getSituacao().toUpperCase().equals(filtrarAgendaDTO.situacao.toUpperCase())){
+                        agendaFiltrada.add(agendaz);
+                    }
+                }
+                agendas = agendaFiltrada;
             }
 
-            Predicate<AgendaModel> byData = agenda -> agenda.getData() == new Date();
-
             if(filtrarAgendaDTO.filtrarDataAtual){
-                return agendas.stream().filter(byData)
-                    .collect(Collectors.toList());
+                var agendaFiltrada = new ArrayList<AgendaModel>();
+                for (AgendaModel agendaz : agendas) {
+                    LocalDate date = LocalDate.now();
+                    
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
+                    var formartz = DateTimeFormatter.ofPattern("dd/MM/yy");
+
+                    String dateToday = date.format(formartz);
+
+                    if(formatter.format(agendaz.getData()).equals(dateToday)){
+                        agendaFiltrada.add(agendaz);
+                    }
+                }
+                return agendaFiltrada;
             }
 
             return agendas;
@@ -198,7 +218,7 @@ public class AgendaRepository extends BaseRepository {
     }
 
     public AgendaModel ObterPorId(int id) {
-        var queryStr = "select Agendas.id, Agendas.data, Agendas.situacao, Agendas.data_situacao, Agendas.observacoes, Vacinas.id, Vacinas.descricao, Vacinas.doses, Vacinas.intervalo, Vacinas.periodicidade, Vacinas.titulo, Usuarios.nome, Usuarios.data_nascimento, Usuarios.sexo, Usuarios.logradouro, Usuarios.numero, Usuarios.setor, Usuarios.uf  from Agendas inner join Vacinas on Agendas.vacinaid = Vacinas.id inner join Usuarios on Agendas.usuarioid = Usuarios.id where Agendas.id = ?1";
+        var queryStr = "select Agendas.id, Agendas.data, Agendas.situacao, Agendas.data_situacao, Agendas.observacoes, Vacinas.id, Vacinas.descricao, Vacinas.doses, Vacinas.intervalo, Vacinas.periodicidade, Vacinas.titulo, Usuarios.id, Usuarios.nome, Usuarios.data_nascimento, Usuarios.sexo, Usuarios.logradouro, Usuarios.numero, Usuarios.setor, Usuarios.uf, Usuarios.cidade  from Agendas inner join Vacinas on Agendas.vacinaid = Vacinas.id inner join Usuarios on Agendas.usuarioid = Usuarios.id where Agendas.id = ?1";
     
         try {
             var agendas = new ArrayList<AgendaModel>();
@@ -225,14 +245,14 @@ public class AgendaRepository extends BaseRepository {
 
                 var usuario = new UsuarioModel();
                 usuario.setId(ObterRegistroInt(coluna[11]));
-                usuario.setCidade(ObterRegistroString(coluna[12]));
+                usuario.setNome(ObterRegistroString(coluna[12]));
                 usuario.setData_nascimento(ObterRegistroData(coluna[13]));
-                usuario.setLogradouro(ObterRegistroString(coluna[14]));
-                usuario.setNome(ObterRegistroString(coluna[15]));
+                usuario.setSexo(ObterRegistroChar(coluna[14]));
+                usuario.setLogradouro(ObterRegistroString(coluna[15]));
                 usuario.setNumero(ObterRegistroInt(coluna[16]));
                 usuario.setSetor(ObterRegistroString(coluna[17]));
-                usuario.setSexo(ObterRegistroChar(coluna[18]));
-                usuario.setUf(ObterRegistroString(coluna[19]));
+                usuario.setUf(ObterRegistroString(coluna[18]));
+                usuario.setCidade(ObterRegistroString(coluna[19]));
                 
                 agenda.setUsuario(usuario);
                 agenda.setVacina(vacina);

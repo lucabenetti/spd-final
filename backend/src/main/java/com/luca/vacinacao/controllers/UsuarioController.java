@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.luca.vacinacao.dtos.DeletarDTO;
+import com.luca.vacinacao.dtos.UsuarioAlergiaDTO;
 import com.luca.vacinacao.dtos.UsuarioDTO;
 import com.luca.vacinacao.models.UsuarioModel;
 import com.luca.vacinacao.repositories.UsuarioRepository;
@@ -42,8 +44,14 @@ public class UsuarioController {
     }
     
     @DeleteMapping(value="usuarios/excluir")
-    public void Excluir(@RequestParam int id) {
+    public void Excluir(@RequestBody DeletarDTO dto) {
         var repository = new UsuarioRepository(entityManagerFactory);
-        repository.deletarPorId(id);
+        repository.deletarPorId(dto.id);
+    }
+
+    @PutMapping(value="usuarios/associar-usuario-alergia")
+    public void Excluir(@RequestBody List<UsuarioAlergiaDTO> dto) {
+        var repository = new UsuarioRepository(entityManagerFactory);
+        repository.associarUsuarioAlergia(dto);
     }
 }

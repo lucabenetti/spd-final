@@ -22,7 +22,7 @@ public class AlergiaRepository extends BaseRepository {
     }
 
     public List<AlergiaModel> ObterAlergiasAssociadasAoUsuario(int usuarioId){
-        String queryStr = "select alergias.id, alergias.nome from UsuariosAlergias left join alergias on alergiaid = alergias.id where usuarioid = ?1";
+        String queryStr = "select Alergias.id, Alergias.nome from UsuariosAlergias left join Alergias on alergiaid = Alergias.id where usuarioid = ?1";
         try {
             var alergias = new ArrayList<AlergiaModel>();
             
@@ -45,7 +45,7 @@ public class AlergiaRepository extends BaseRepository {
     }
 
     public void Salvar(AlergiaModel alergia){
-        String queryStr = "INSERT INTO alergias values(?1, ?2)";
+        String queryStr = "INSERT INTO Alergias values(?1, ?2)";
         try {
             EntityTransaction et = entityManager.getTransaction();
 
@@ -63,7 +63,7 @@ public class AlergiaRepository extends BaseRepository {
     }
 
     public List<AlergiaModel> ObterTodos() {
-        String queryStr = "select id, nome from alergias";
+        String queryStr = "select id, nome from Alergias";
         try {
             var alergias = new ArrayList<AlergiaModel>();
             
@@ -85,7 +85,7 @@ public class AlergiaRepository extends BaseRepository {
     }
 
     public AlergiaModel ObterPorId(int id) {
-        String queryStr = "select id, nome from alergias where id = ?1";
+        String queryStr = "select id, nome from Alergias where id = ?1";
         try {
             var alergias = new ArrayList<AlergiaModel>();
             
@@ -110,7 +110,7 @@ public class AlergiaRepository extends BaseRepository {
     }
 
     public int ObterId() {
-        var queryStr = "select max(id) from alergias";
+        var queryStr = "select max(id) from Alergias";
         
         try {
             
@@ -126,7 +126,7 @@ public class AlergiaRepository extends BaseRepository {
     }
 
     public void deletarPorId(int id) {
-        String queryStr = "DELETE FROM alergias where id = ?1";
+        String queryStr = "DELETE FROM Alergias where id = ?1";
         try {
             EntityTransaction et = entityManager.getTransaction();
 

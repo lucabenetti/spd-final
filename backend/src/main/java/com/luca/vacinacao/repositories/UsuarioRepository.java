@@ -3,6 +3,7 @@ package com.luca.vacinacao.repositories;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.luca.vacinacao.dtos.UsuarioAlergiaDTO;
 import com.luca.vacinacao.models.UsuarioModel;
 
 import jakarta.persistence.EntityManager;
@@ -18,20 +19,20 @@ public class UsuarioRepository extends BaseRepository {
     }
 
     public void Salvar(UsuarioModel usuario) {
-        String queryStr = "INSERT INTO usuarios values(?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)";
+        String queryStr = "INSERT INTO Usuarios values(?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)";
         try {
             EntityTransaction et = entityManager.getTransaction();
 
             et.begin();
             Query query = entityManager.createNativeQuery(queryStr);
             query.setParameter(1, usuario.getId());
-            query.setParameter(2, usuario.getCidade());
+            query.setParameter(2, usuario.getNome());
             query.setParameter(3, usuario.getData_nascimento());
-            query.setParameter(4, usuario.getLogradouro());
-            query.setParameter(5, usuario.getNome());
+            query.setParameter(4, usuario.getSexo());
+            query.setParameter(5, usuario.getLogradouro());
             query.setParameter(6, usuario.getNumero());
             query.setParameter(7, usuario.getSetor());
-            query.setParameter(8, usuario.getSexo());
+            query.setParameter(8, usuario.getCidade());
             query.setParameter(9, usuario.getUf());
             query.executeUpdate();
             et.commit();
@@ -43,7 +44,7 @@ public class UsuarioRepository extends BaseRepository {
     }
 
     public List<UsuarioModel> ObterTodos() {
-        String queryStr = "select id, cidade, data_nascimento, logradouro, nome, numero, setor, sexo, uf from usuarios";
+        String queryStr = "select id, cidade, data_nascimento, logradouro, nome, numero, setor, sexo, uf from Usuarios";
         try {
             var usuarios = new ArrayList<UsuarioModel>();
             
@@ -77,7 +78,7 @@ public class UsuarioRepository extends BaseRepository {
     }
 
     public int ObterId() {
-        var queryStr = "select max(id) from usuarios";
+        var queryStr = "select max(id) from Usuarios";
         
         try {
             
@@ -93,7 +94,7 @@ public class UsuarioRepository extends BaseRepository {
     }
 
     public UsuarioModel ObterPorId(int id) {
-        String queryStr = "select id, cidade, data_nascimento, logradouro, nome, numero, setor, sexo, uf from usuarios where id = ?1";
+        String queryStr = "select id, cidade, data_nascimento, logradouro, nome, numero, setor, sexo, uf from Usuarios where id = ?1";
         try {
             var usuarios = new ArrayList<UsuarioModel>();
             
@@ -130,7 +131,7 @@ public class UsuarioRepository extends BaseRepository {
     }
 
     public void deletarPorId(int id) {
-        String queryStr = "DELETE FROM usuarios where id = ?1";
+        String queryStr = "DELETE FROM Usuarios where id = ?1";
         try {
             EntityTransaction et = entityManager.getTransaction();
 
@@ -143,6 +144,43 @@ public class UsuarioRepository extends BaseRepository {
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
+        }
+    }
+
+    public void associarUsuarioAlergia(List<UsuarioAlergiaDTO> dtos) {
+        String queryStr = "DELETE FROM UsuariosAlergias where usuarioid = ?1";
+            try {
+                EntityTransaction et = entityManager.getTransaction();
+
+                et.begin();
+                Query query = entityManager.createNativeQuery(queryStr);
+                query.setParameter(1, dtos.get(0).usuarioId);
+                query.executeUpdate();
+                
+                
+                et.commit();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            }   
+
+        for (UsuarioAlergiaDTO relacao : dtos) {
+            String queryz = "INSERT INTO UsuariosAlergias values(?1, ?2)";
+            try {
+                EntityTransaction et = entityManager.getTransaction();
+
+                et.begin();
+                Query query = entityManager.createNativeQuery(queryz);
+                query.setParameter(1, relacao.usuarioId);
+                query.setParameter(2, relacao.alergiaId);
+                query.executeUpdate();
+                et.commit();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            }   
         }
     }
 }
