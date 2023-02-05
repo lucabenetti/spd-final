@@ -2,7 +2,6 @@ package com.luca.vacinacao.controllers;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +14,6 @@ import com.luca.vacinacao.repositories.UsuarioRepository;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
-import jakarta.transaction.Transactional;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +23,6 @@ public class UsuarioController {
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
 
-    @Transactional
     @PostMapping(value="usuarios/criar")
     public void Inserir(@RequestBody UsuarioDTO usuario) {
         var repository = new UsuarioRepository(entityManagerFactory);
