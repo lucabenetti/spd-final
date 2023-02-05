@@ -33,13 +33,13 @@ public class VacinaController {
         var repository = new VacinaRepository(entityManagerFactory);
         return repository.ObterTodos();
     }
-    @GetMapping(value="usuarios/obter-por-id")
+    @GetMapping(value="vacinas/obter-por-id")
     public VacinaModel ObterPorId(@RequestParam int id) {
         var repository = new VacinaRepository(entityManagerFactory);
         return repository.ObterPorId(id);
     }
 
-    @DeleteMapping(value="usuarios/excluir")
+    @DeleteMapping(value="vacinas/excluir")
     public void Excluir(@RequestParam int id) {
         var repository = new VacinaRepository(entityManagerFactory);
         repository.deletarPorId(id);
