@@ -8,7 +8,14 @@ public class AgendaModel {
     private String situacao;
     private Date data_situacao;
     private String observacoes;
-
+    
+    private UsuarioModel usuario;
+    public UsuarioModel getUsuario() {
+        return usuario;
+    }
+    public void setUsuario(UsuarioModel usuario) {
+        this.usuario = usuario;
+    }
     public VacinaModel vacina;
 
     public VacinaModel getVacina() {
