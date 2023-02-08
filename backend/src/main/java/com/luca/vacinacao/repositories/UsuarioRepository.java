@@ -43,7 +43,7 @@ public class UsuarioRepository extends BaseRepository {
         }
     }
 
-    public List<UsuarioModel> ObterTodos() {
+    public List<UsuarioModel> ObterTodos() throws Exception {
         String queryStr = "select id, cidade, data_nascimento, logradouro, nome, numero, setor, sexo, uf from Usuarios";
         try {
             var usuarios = new ArrayList<UsuarioModel>();
@@ -67,7 +67,7 @@ public class UsuarioRepository extends BaseRepository {
 
             for (UsuarioModel usuario : usuarios) {
                 usuario.setAlergias(new AlergiaRepository(entityManager).ObterAlergiasAssociadasAoUsuario(usuario.getId()));
-                usuario.setAgendas(new AgendaRepository(entityManager).ObterAgendasAssociadaAoUsuario(usuario.getId()));
+                usuario.setAgendas(new AgendaRepository().ObterAgendasAssociadaAoUsuario(usuario.getId()));
             }
 
             return usuarios;
@@ -93,7 +93,7 @@ public class UsuarioRepository extends BaseRepository {
         }
     }
 
-    public UsuarioModel ObterPorId(int id) {
+    public UsuarioModel ObterPorId(int id) throws Exception {
         String queryStr = "select id, cidade, data_nascimento, logradouro, nome, numero, setor, sexo, uf from Usuarios where id = ?1";
         try {
             var usuarios = new ArrayList<UsuarioModel>();
@@ -118,7 +118,7 @@ public class UsuarioRepository extends BaseRepository {
 
             for (UsuarioModel usuario : usuarios) {
                 usuario.setAlergias(new AlergiaRepository(entityManager).ObterAlergiasAssociadasAoUsuario(usuario.getId()));
-                usuario.setAgendas(new AgendaRepository(entityManager).ObterAgendasAssociadaAoUsuario(usuario.getId()));
+                usuario.setAgendas(new AgendaRepository().ObterAgendasAssociadaAoUsuario(usuario.getId()));
             }
 
             if(usuarios.isEmpty()) return null;

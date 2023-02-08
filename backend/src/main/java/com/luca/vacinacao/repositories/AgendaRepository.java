@@ -1,13 +1,12 @@
 package com.luca.vacinacao.repositories;
-import java.text.DateFormat;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import com.luca.vacinacao.dtos.AgendaDTO;
 import com.luca.vacinacao.dtos.AtualizarAgendaDTO;
@@ -16,35 +15,24 @@ import com.luca.vacinacao.models.AgendaModel;
 import com.luca.vacinacao.models.UsuarioModel;
 import com.luca.vacinacao.models.VacinaModel;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.Query;
-
 public class AgendaRepository extends BaseRepository {
-    private EntityManager entityManager;
+    private Connection con;
 
-    public AgendaRepository(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    public AgendaRepository() throws SQLException {
+        con = FabricaDeConexao.obterConexao();
     }
 
-    public AgendaRepository(EntityManagerFactory entityManagerFactory){
-        entityManager = entityManagerFactory.createEntityManager();
-    }
-
-    public void AtualizarStatusAgenda(AtualizarAgendaDTO atualizarAgendaDTO) {
-        String queryStr = "UPDATE Agendas set situacao = ?1, data_situacao = ?2 where id = ?3";
+    public void AtualizarStatusAgenda(AtualizarAgendaDTO atualizarAgendaDTO) throws Exception {
+        String queryStr = "UPDATE Agendas set situacao = ?, data_situacao = ? where id = ?";
         try {
             var id = ObterId();
-            EntityTransaction et = entityManager.getTransaction();
+            var et = con.prepareStatement(queryStr);
 
-            et.begin();
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(3, id);
-            query.setParameter(1, atualizarAgendaDTO.situacao);
-            query.setParameter(2, new Date());
-            query.executeUpdate();
-            et.commit();
+            et.setInt(3, id);
+            et.setString(1, atualizarAgendaDTO.situacao);
+            et.setDate(2, new java.sql.Date(new Date().getTime()));
+            et.executeUpdate();
+            et.execute();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,23 +40,19 @@ public class AgendaRepository extends BaseRepository {
         }
     }
 
-    public void Salvar(AgendaDTO agenda){
-        String queryStr = "INSERT INTO Agendas values(?1, ?2, ?3, ?4, ?5, ?6, ?7)";
+    public void Salvar(AgendaDTO agenda) throws Exception{
+        String queryStr = "INSERT INTO Agendas values(?, ?, ?, ?, ?, ?, ?)";
         try {
             var id = ObterId();
-            EntityTransaction et = entityManager.getTransaction();
-
-            et.begin();
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, id);
-            query.setParameter(2, agenda.data);
-            query.setParameter(3, "Agendada");
-            query.setParameter(4, new Date());
-            query.setParameter(5, agenda.observacoes);
-            query.setParameter(6, agenda.usuarioId);
-            query.setParameter(7, agenda.vacinaId);
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, id);
+            query.setDate(2, new java.sql.Date(agenda.data.getTime()));
+            query.setString(3, "Agendada");
+            query.setDate(4, new java.sql.Date(new Date().getTime()));
+            query.setString(5, agenda.observacoes);
+            query.setInt(6, agenda.usuarioId);
+            query.setInt(7, agenda.vacinaId);
             query.executeUpdate();
-            et.commit();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,58 +60,62 @@ public class AgendaRepository extends BaseRepository {
         }
     }
 
-    public int ObterId() {
+    public int ObterId() throws Exception {
         var queryStr = "select max(id) from Agendas";
         
         try {
             
-            Query query = entityManager.createNativeQuery(queryStr);
-            Object linha = query.getSingleResult();
+            var query = con.prepareStatement(queryStr);
+            var resultado = query.executeQuery();
 
-            var ultimoId = ObterRegistroInt(linha);
-            return ultimoId + 1;
+            if(resultado.next()){
+                var ultimoId = resultado.getInt(1);
+                return ultimoId + 1;
+            }
+
+            return 0;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
 
-    public List<AgendaModel> ObterAgendasAssociadaAoUsuario(int usuarioId) {
-        var queryStr = "select Agendas.id, Agendas.data, Agendas.situacao, Agendas.data_situacao, Agendas.observacoes, Vacinas.id, Vacinas.descricao, Vacinas.doses, Vacinas.intervalo, Vacinas.periodicidade, Vacinas.titulo, Usuarios.id, Usuarios.nome, Usuarios.data_nascimento, Usuarios.sexo, Usuarios.logradouro, Usuarios.numero, Usuarios.setor, Usuarios.uf, Usuarios.cidade  from Agendas inner join Vacinas on Agendas.vacinaid = Vacinas.id inner join Usuarios on Agendas.usuarioid = Usuarios.id where usuarioid = ?1";
+    public List<AgendaModel> ObterAgendasAssociadaAoUsuario(int usuarioId) throws Exception {
+        var queryStr = "select Agendas.id, Agendas.data, Agendas.situacao, Agendas.data_situacao, Agendas.observacoes, Vacinas.id, Vacinas.descricao, Vacinas.doses, Vacinas.intervalo, Vacinas.periodicidade, Vacinas.titulo, Usuarios.id, Usuarios.nome, Usuarios.data_nascimento, Usuarios.sexo, Usuarios.logradouro, Usuarios.numero, Usuarios.setor, Usuarios.uf, Usuarios.cidade  from Agendas inner join Vacinas on Agendas.vacinaid = Vacinas.id inner join Usuarios on Agendas.usuarioid = Usuarios.id where usuarioid = ?";
     
         try {
             var agendas = new ArrayList<AgendaModel>();
             
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, usuarioId);
-            List<Object[]> linhas = query.getResultList();
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, usuarioId);
+            var resultado = query.executeQuery();
 
-            for (Object[] coluna : linhas) {
+            while (resultado.next()) {
                 var agenda = new AgendaModel();
-                agenda.setId(ObterRegistroInt(coluna[0]));
-                agenda.setData(ObterRegistroData(coluna[1]));
-                agenda.setSituacao(ObterRegistroString(coluna[2]));
-                agenda.setData_situacao(ObterRegistroData(coluna[3]));
-                agenda.setObservacoes(ObterRegistroString(coluna[4]));
+                agenda.setId(ObterRegistroInt(resultado, 0));
+                agenda.setData(ObterRegistroData(resultado, 1));
+                agenda.setSituacao(ObterRegistroString(resultado, 2));
+                agenda.setData_situacao(ObterRegistroData(resultado, 3));
+                agenda.setObservacoes(ObterRegistroString(resultado, 4));
 
                 var vacina = new VacinaModel();
-                vacina.setId(ObterRegistroInt(coluna[5]));
-                vacina.setDescricao(ObterRegistroString(coluna[6]));
-                vacina.setDoses(ObterRegistroInt(coluna[7]));
-                vacina.setIntervalo(ObterRegistroInt(coluna[8]));
-                vacina.setPeriodicidade(ObterRegistroInt(coluna[9]));
-                vacina.setTitulo(ObterRegistroString(coluna[10]));
+                vacina.setId(ObterRegistroInt(resultado, 5));
+                vacina.setDescricao(ObterRegistroString(resultado, 6));
+                vacina.setDoses(ObterRegistroInt(resultado, 7));
+                vacina.setIntervalo(ObterRegistroInt(resultado, 8));
+                vacina.setPeriodicidade(ObterRegistroInt(resultado, 9));
+                vacina.setTitulo(ObterRegistroString(resultado, 10));
 
                 var usuario = new UsuarioModel();
-                usuario.setId(ObterRegistroInt(coluna[11]));
-                usuario.setNome(ObterRegistroString(coluna[12]));
-                usuario.setData_nascimento(ObterRegistroData(coluna[13]));
-                usuario.setSexo(ObterRegistroChar(coluna[14]));
-                usuario.setLogradouro(ObterRegistroString(coluna[15]));
-                usuario.setNumero(ObterRegistroInt(coluna[16]));
-                usuario.setSetor(ObterRegistroString(coluna[17]));
-                usuario.setUf(ObterRegistroString(coluna[18]));
-                usuario.setCidade(ObterRegistroString(coluna[19]));
+                usuario.setId(ObterRegistroInt(resultado, 11));
+                usuario.setNome(ObterRegistroString(resultado, 12));
+                usuario.setData_nascimento(ObterRegistroData(resultado, 13));
+                usuario.setSexo(ObterRegistroChar(resultado, 14));
+                usuario.setLogradouro(ObterRegistroString(resultado, 15));
+                usuario.setNumero(ObterRegistroInt(resultado, 16));
+                usuario.setSetor(ObterRegistroString(resultado, 17));
+                usuario.setUf(ObterRegistroString(resultado, 18));
+                usuario.setCidade(ObterRegistroString(resultado, 19));
                 
                 agenda.setUsuario(usuario);
                 agenda.setVacina(vacina);
@@ -141,42 +129,41 @@ public class AgendaRepository extends BaseRepository {
         }
     }
 
-    public List<AgendaModel> ObterTodos(FiltrarAgendaDTO filtrarAgendaDTO) {
+    public List<AgendaModel> ObterTodos(FiltrarAgendaDTO filtrarAgendaDTO) throws Exception {
         var queryStr = "select Agendas.id, Agendas.data, Agendas.situacao, Agendas.data_situacao, Agendas.observacoes, Vacinas.id, Vacinas.descricao, Vacinas.doses, Vacinas.intervalo, Vacinas.periodicidade, Vacinas.titulo, Usuarios.id, Usuarios.nome, Usuarios.data_nascimento, Usuarios.sexo, Usuarios.logradouro, Usuarios.numero, Usuarios.setor, Usuarios.uf, Usuarios.cidade  from Agendas inner join Vacinas on Agendas.vacinaid = Vacinas.id inner join Usuarios on Agendas.usuarioid = Usuarios.id";
 
         try {
             var agendas = new ArrayList<AgendaModel>();
             
-            Query query = entityManager.createNativeQuery(queryStr);
+            var query = con.prepareStatement(queryStr);
+            var resultado = query.executeQuery();
 
-            List<Object[]> linhas = query.getResultList();
-
-            for (Object[] coluna : linhas) {
+            while (resultado.next()) {
                 var agenda = new AgendaModel();
-                agenda.setId(ObterRegistroInt(coluna[0]));
-                agenda.setData(ObterRegistroData(coluna[1]));
-                agenda.setSituacao(ObterRegistroString(coluna[2]));
-                agenda.setData_situacao(ObterRegistroData(coluna[3]));
-                agenda.setObservacoes(ObterRegistroString(coluna[4]));
+                agenda.setId(ObterRegistroInt(resultado, 1));
+                agenda.setData(ObterRegistroData(resultado, 2));
+                agenda.setSituacao(ObterRegistroString(resultado, 3));
+                agenda.setData_situacao(ObterRegistroData(resultado, 4));
+                agenda.setObservacoes(ObterRegistroString(resultado, 5));
 
                 var vacina = new VacinaModel();
-                vacina.setId(ObterRegistroInt(coluna[5]));
-                vacina.setDescricao(ObterRegistroString(coluna[6]));
-                vacina.setDoses(ObterRegistroInt(coluna[7]));
-                vacina.setIntervalo(ObterRegistroInt(coluna[8]));
-                vacina.setPeriodicidade(ObterRegistroInt(coluna[9]));
-                vacina.setTitulo(ObterRegistroString(coluna[10]));
+                vacina.setId(ObterRegistroInt(resultado, 6));
+                vacina.setDescricao(ObterRegistroString(resultado, 7));
+                vacina.setDoses(ObterRegistroInt(resultado, 8));
+                vacina.setIntervalo(ObterRegistroInt(resultado, 9));
+                vacina.setPeriodicidade(ObterRegistroInt(resultado, 10));
+                vacina.setTitulo(ObterRegistroString(resultado, 11));
 
                 var usuario = new UsuarioModel();
-                usuario.setId(ObterRegistroInt(coluna[11]));
-                usuario.setNome(ObterRegistroString(coluna[12]));
-                usuario.setData_nascimento(ObterRegistroData(coluna[13]));
-                usuario.setSexo(ObterRegistroChar(coluna[14]));
-                usuario.setLogradouro(ObterRegistroString(coluna[15]));
-                usuario.setNumero(ObterRegistroInt(coluna[16]));
-                usuario.setSetor(ObterRegistroString(coluna[17]));
-                usuario.setUf(ObterRegistroString(coluna[18]));
-                usuario.setCidade(ObterRegistroString(coluna[19]));
+                usuario.setId(ObterRegistroInt(resultado, 12));
+                usuario.setNome(ObterRegistroString(resultado, 13));
+                usuario.setData_nascimento(ObterRegistroData(resultado, 14));
+                usuario.setSexo(ObterRegistroChar(resultado, 15));
+                usuario.setLogradouro(ObterRegistroString(resultado, 16));
+                usuario.setNumero(ObterRegistroInt(resultado, 17));
+                usuario.setSetor(ObterRegistroString(resultado, 18));
+                usuario.setUf(ObterRegistroString(resultado, 19));
+                usuario.setCidade(ObterRegistroString(resultado, 20));
                 
                 agenda.setUsuario(usuario);
                 agenda.setVacina(vacina);
@@ -217,42 +204,42 @@ public class AgendaRepository extends BaseRepository {
         }
     }
 
-    public AgendaModel ObterPorId(int id) {
-        var queryStr = "select Agendas.id, Agendas.data, Agendas.situacao, Agendas.data_situacao, Agendas.observacoes, Vacinas.id, Vacinas.descricao, Vacinas.doses, Vacinas.intervalo, Vacinas.periodicidade, Vacinas.titulo, Usuarios.id, Usuarios.nome, Usuarios.data_nascimento, Usuarios.sexo, Usuarios.logradouro, Usuarios.numero, Usuarios.setor, Usuarios.uf, Usuarios.cidade  from Agendas inner join Vacinas on Agendas.vacinaid = Vacinas.id inner join Usuarios on Agendas.usuarioid = Usuarios.id where Agendas.id = ?1";
+    public AgendaModel ObterPorId(int id) throws Exception {
+        var queryStr = "select Agendas.id, Agendas.data, Agendas.situacao, Agendas.data_situacao, Agendas.observacoes, Vacinas.id, Vacinas.descricao, Vacinas.doses, Vacinas.intervalo, Vacinas.periodicidade, Vacinas.titulo, Usuarios.id, Usuarios.nome, Usuarios.data_nascimento, Usuarios.sexo, Usuarios.logradouro, Usuarios.numero, Usuarios.setor, Usuarios.uf, Usuarios.cidade  from Agendas inner join Vacinas on Agendas.vacinaid = Vacinas.id inner join Usuarios on Agendas.usuarioid = Usuarios.id where Agendas.id = ?";
     
         try {
             var agendas = new ArrayList<AgendaModel>();
             
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, id);
-            List<Object[]> linhas = query.getResultList();
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, id);
+            var resultado = query.executeQuery();
 
-            for (Object[] coluna : linhas) {
+            while (resultado.next()) {
                 var agenda = new AgendaModel();
-                agenda.setId(ObterRegistroInt(coluna[0]));
-                agenda.setData(ObterRegistroData(coluna[1]));
-                agenda.setSituacao(ObterRegistroString(coluna[2]));
-                agenda.setData_situacao(ObterRegistroData(coluna[3]));
-                agenda.setObservacoes(ObterRegistroString(coluna[4]));
+                agenda.setId(ObterRegistroInt(resultado, 0));
+                agenda.setData(ObterRegistroData(resultado, 1));
+                agenda.setSituacao(ObterRegistroString(resultado, 2));
+                agenda.setData_situacao(ObterRegistroData(resultado, 3));
+                agenda.setObservacoes(ObterRegistroString(resultado, 4));
 
                 var vacina = new VacinaModel();
-                vacina.setId(ObterRegistroInt(coluna[5]));
-                vacina.setDescricao(ObterRegistroString(coluna[6]));
-                vacina.setDoses(ObterRegistroInt(coluna[7]));
-                vacina.setIntervalo(ObterRegistroInt(coluna[8]));
-                vacina.setPeriodicidade(ObterRegistroInt(coluna[9]));
-                vacina.setTitulo(ObterRegistroString(coluna[10]));
+                vacina.setId(ObterRegistroInt(resultado, 5));
+                vacina.setDescricao(ObterRegistroString(resultado, 6));
+                vacina.setDoses(ObterRegistroInt(resultado, 7));
+                vacina.setIntervalo(ObterRegistroInt(resultado, 8));
+                vacina.setPeriodicidade(ObterRegistroInt(resultado, 9));
+                vacina.setTitulo(ObterRegistroString(resultado, 10));
 
                 var usuario = new UsuarioModel();
-                usuario.setId(ObterRegistroInt(coluna[11]));
-                usuario.setNome(ObterRegistroString(coluna[12]));
-                usuario.setData_nascimento(ObterRegistroData(coluna[13]));
-                usuario.setSexo(ObterRegistroChar(coluna[14]));
-                usuario.setLogradouro(ObterRegistroString(coluna[15]));
-                usuario.setNumero(ObterRegistroInt(coluna[16]));
-                usuario.setSetor(ObterRegistroString(coluna[17]));
-                usuario.setUf(ObterRegistroString(coluna[18]));
-                usuario.setCidade(ObterRegistroString(coluna[19]));
+                usuario.setId(ObterRegistroInt(resultado, 11));
+                usuario.setNome(ObterRegistroString(resultado, 12));
+                usuario.setData_nascimento(ObterRegistroData(resultado, 13));
+                usuario.setSexo(ObterRegistroChar(resultado, 14));
+                usuario.setLogradouro(ObterRegistroString(resultado, 15));
+                usuario.setNumero(ObterRegistroInt(resultado, 16));
+                usuario.setSetor(ObterRegistroString(resultado, 17));
+                usuario.setUf(ObterRegistroString(resultado, 18));
+                usuario.setCidade(ObterRegistroString(resultado, 19));
                 
                 agenda.setUsuario(usuario);
                 agenda.setVacina(vacina);
@@ -267,16 +254,12 @@ public class AgendaRepository extends BaseRepository {
         }
     }
 
-    public void deletarPorId(int id) {
-        String queryStr = "DELETE FROM Agendas where id = ?1";
+    public void deletarPorId(int id) throws Exception {
+        String queryStr = "DELETE FROM Agendas where id = ?";
         try {
-            EntityTransaction et = entityManager.getTransaction();
-
-            et.begin();
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, id);
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, id);
             query.executeUpdate();
-            et.commit();
 
         } catch (Exception e) {
             e.printStackTrace();

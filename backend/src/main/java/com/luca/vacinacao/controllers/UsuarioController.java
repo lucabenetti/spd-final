@@ -33,12 +33,12 @@ public class UsuarioController {
         repository.Salvar(usuarioModel);
     }
     @GetMapping(value="usuarios/obter-todos")
-    public List<UsuarioModel> ObterVarios() {
+    public List<UsuarioModel> ObterVarios() throws Exception {
         var repository = new UsuarioRepository(entityManagerFactory);
         return repository.ObterTodos();
     }
     @GetMapping(value="usuarios/obter-por-id")
-    public UsuarioModel ObterPorId(@RequestParam int id) {
+    public UsuarioModel ObterPorId(@RequestParam int id) throws Exception {
         var repository = new UsuarioRepository(entityManagerFactory);
         return repository.ObterPorId(id);
     }
