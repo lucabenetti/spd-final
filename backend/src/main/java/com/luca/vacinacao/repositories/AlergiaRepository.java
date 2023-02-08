@@ -1,39 +1,32 @@
 package com.luca.vacinacao.repositories;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.luca.vacinacao.models.AlergiaModel;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.Query;
-
 public class AlergiaRepository extends BaseRepository {
-    private EntityManager entityManager;
+    private Connection con;
 
-    public AlergiaRepository(EntityManagerFactory entityManagerFactory){
-        entityManager = entityManagerFactory.createEntityManager();
+    public AlergiaRepository() throws SQLException{
+        con = FabricaDeConexao.obterConexao();
     }
 
-    public AlergiaRepository(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    public List<AlergiaModel> ObterAlergiasAssociadasAoUsuario(int usuarioId){
+    public List<AlergiaModel> ObterAlergiasAssociadasAoUsuario(int usuarioId) throws Exception{
         String queryStr = "select Alergias.id, Alergias.nome from UsuariosAlergias left join Alergias on alergiaid = Alergias.id where usuarioid = ?1";
         try {
             var alergias = new ArrayList<AlergiaModel>();
             
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, usuarioId);
-            List<Object[]> linhas = query.getResultList();
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, usuarioId);
+            var result = query.executeQuery();
 
-            for (Object[] coluna : linhas) {
+            while (result.next()) {
                 var alergia = new AlergiaModel();
-                alergia.setId(ObterRegistroInt(coluna[0]));
-                alergia.setNome(ObterRegistroString(coluna[1]));
+                alergia.setId(ObterRegistroInt(result, 1));
+                alergia.setNome(ObterRegistroString(result, 2));
                 alergias.add(alergia);
             }
 
@@ -44,17 +37,13 @@ public class AlergiaRepository extends BaseRepository {
         }
     }
 
-    public void Salvar(AlergiaModel alergia){
-        String queryStr = "INSERT INTO Alergias values(?1, ?2)";
+    public void Salvar(AlergiaModel alergia) throws Exception{
+        String queryStr = "INSERT INTO Alergias values(?, ?)";
         try {
-            EntityTransaction et = entityManager.getTransaction();
-
-            et.begin();
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, alergia.getId());
-            query.setParameter(2, alergia.getNome());
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, alergia.getId());
+            query.setString(2, alergia.getNome());
             query.executeUpdate();
-            et.commit();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -62,18 +51,18 @@ public class AlergiaRepository extends BaseRepository {
         }
     }
 
-    public List<AlergiaModel> ObterTodos() {
+    public List<AlergiaModel> ObterTodos() throws Exception {
         String queryStr = "select id, nome from Alergias";
         try {
             var alergias = new ArrayList<AlergiaModel>();
             
-            Query query = entityManager.createNativeQuery(queryStr);
-            List<Object[]> linhas = query.getResultList();
+            var query = con.prepareStatement(queryStr);
 
-            for (Object[] coluna : linhas) {
+            var result = query.executeQuery();
+            while (result.next()) {
                 var alergia = new AlergiaModel();
-                alergia.setId(ObterRegistroInt(coluna[0]));
-                alergia.setNome(ObterRegistroString(coluna[1]));
+                alergia.setId(ObterRegistroInt(result, 1));
+                alergia.setNome(ObterRegistroString(result, 2));
                 alergias.add(alergia);
             }
 
@@ -84,19 +73,19 @@ public class AlergiaRepository extends BaseRepository {
         }
     }
 
-    public AlergiaModel ObterPorId(int id) {
-        String queryStr = "select id, nome from Alergias where id = ?1";
+    public AlergiaModel ObterPorId(int id) throws Exception {
+        String queryStr = "select id, nome from Alergias where id = ?";
         try {
             var alergias = new ArrayList<AlergiaModel>();
             
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, id);
-            List<Object[]> linhas = query.getResultList();
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, id);
+            var result = query.executeQuery();
 
-            for (Object[] coluna : linhas) {
+            while (result.next()) {
                 var alergia = new AlergiaModel();
-                alergia.setId(ObterRegistroInt(coluna[0]));
-                alergia.setNome(ObterRegistroString(coluna[1]));
+                alergia.setId(ObterRegistroInt(result, 1));
+                alergia.setNome(ObterRegistroString(result, 2));
                 alergias.add(alergia);
             }
 
@@ -109,32 +98,31 @@ public class AlergiaRepository extends BaseRepository {
         }
     }
 
-    public int ObterId() {
+    public int ObterId() throws Exception {
         var queryStr = "select max(id) from Alergias";
         
         try {
             
-            Query query = entityManager.createNativeQuery(queryStr);
-            Object linha = query.getSingleResult();
-
-            var ultimoId = ObterRegistroInt(linha);
-            return ultimoId + 1;
+            var query = con.prepareStatement(queryStr);
+            var result = query.executeQuery();
+            if(result.next()){
+                var ultimoId = ObterRegistroInt(result, 1);
+                return ultimoId + 1;
+            }
+            return 0;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
 
-    public void deletarPorId(int id) {
+    public void deletarPorId(int id) throws Exception {
         String queryStr = "DELETE FROM Alergias where id = ?1";
         try {
-            EntityTransaction et = entityManager.getTransaction();
 
-            et.begin();
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, id);
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, id);
             query.executeUpdate();
-            et.commit();
 
         } catch (Exception e) {
             e.printStackTrace();

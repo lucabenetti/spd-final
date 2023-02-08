@@ -66,7 +66,7 @@ public class UsuarioRepository extends BaseRepository {
             }
 
             for (UsuarioModel usuario : usuarios) {
-                usuario.setAlergias(new AlergiaRepository(entityManager).ObterAlergiasAssociadasAoUsuario(usuario.getId()));
+                usuario.setAlergias(new AlergiaRepository().ObterAlergiasAssociadasAoUsuario(usuario.getId()));
                 usuario.setAgendas(new AgendaRepository().ObterAgendasAssociadaAoUsuario(usuario.getId()));
             }
 
@@ -117,7 +117,7 @@ public class UsuarioRepository extends BaseRepository {
             }
 
             for (UsuarioModel usuario : usuarios) {
-                usuario.setAlergias(new AlergiaRepository(entityManager).ObterAlergiasAssociadasAoUsuario(usuario.getId()));
+                usuario.setAlergias(new AlergiaRepository().ObterAlergiasAssociadasAoUsuario(usuario.getId()));
                 usuario.setAgendas(new AgendaRepository().ObterAgendasAssociadaAoUsuario(usuario.getId()));
             }
 

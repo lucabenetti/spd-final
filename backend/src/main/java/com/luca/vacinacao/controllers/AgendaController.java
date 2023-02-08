@@ -17,11 +17,9 @@ import com.luca.vacinacao.dtos.FiltrarAgendaDTO;
 import com.luca.vacinacao.models.AgendaModel;
 import com.luca.vacinacao.repositories.AgendaRepository;
 
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.PersistenceUnit;
-
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin
 @RestController
 public class AgendaController {
 

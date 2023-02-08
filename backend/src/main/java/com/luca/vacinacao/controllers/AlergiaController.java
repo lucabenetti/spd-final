@@ -1,5 +1,6 @@
 package com.luca.vacinacao.controllers;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,32 +18,33 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
 
+@CrossOrigin
 @RestController
 public class AlergiaController {
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
 
     @PostMapping(value="alergias/criar")
-    public void Inserir(@RequestBody AlergiaDTO alergia) {
-        var repository = new AlergiaRepository(entityManagerFactory);
+    public void Inserir(@RequestBody AlergiaDTO alergia) throws Exception {
+        var repository = new AlergiaRepository();
         var alergiaModel = alergia.ToModel();
         alergiaModel.setId(repository.ObterId());
         repository.Salvar(alergiaModel);
     }
     @GetMapping(value="alergias/obter-todos")
-    public List<AlergiaModel> ObterVarios() {
-        var repository = new AlergiaRepository(entityManagerFactory);
+    public List<AlergiaModel> ObterVarios() throws Exception {
+        var repository = new AlergiaRepository();
         return repository.ObterTodos();
     }
     @GetMapping(value="alergias/obter-por-id")
-    public AlergiaModel ObterPorId(@RequestParam int id) {
-        var repository = new AlergiaRepository(entityManagerFactory);
+    public AlergiaModel ObterPorId(@RequestParam int id) throws Exception {
+        var repository = new AlergiaRepository();
         return repository.ObterPorId(id);
     }
 
     @DeleteMapping(value="alergias/excluir")
-    public void Excluir(@RequestBody DeletarDTO dto) {
-        var repository = new AlergiaRepository(entityManagerFactory);
+    public void Excluir(@RequestBody DeletarDTO dto) throws Exception {
+        var repository = new AlergiaRepository();
         repository.deletarPorId(dto.id);
     }
 }

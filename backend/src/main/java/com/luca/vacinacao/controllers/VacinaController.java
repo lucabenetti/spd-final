@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
 
+@CrossOrigin
 @RestController
 public class VacinaController {
     @PersistenceUnit

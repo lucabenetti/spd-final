@@ -19,6 +19,7 @@ import jakarta.persistence.PersistenceUnit;
 
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin
 @RestController
 public class UsuarioController {
 
