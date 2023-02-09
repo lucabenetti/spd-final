@@ -15,14 +15,10 @@ import com.luca.vacinacao.models.AlergiaModel;
 import com.luca.vacinacao.repositories.AlergiaRepository;
 
 import org.springframework.web.bind.annotation.*;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.PersistenceUnit;
 
 @CrossOrigin
 @RestController
 public class AlergiaController {
-    @PersistenceUnit
-    private EntityManagerFactory entityManagerFactory;
 
     @PostMapping(value="alergias/criar")
     public void Inserir(@RequestBody AlergiaDTO alergia) throws Exception {

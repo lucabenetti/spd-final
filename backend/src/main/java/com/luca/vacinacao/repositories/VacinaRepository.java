@@ -1,37 +1,31 @@
 package com.luca.vacinacao.repositories;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.luca.vacinacao.models.VacinaModel;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.Query;
-
 public class VacinaRepository extends BaseRepository {
-    private EntityManager entityManager;
+    private Connection con;
 
-    public VacinaRepository(EntityManagerFactory entityManagerFactory){
-        entityManager = entityManagerFactory.createEntityManager();
+    public VacinaRepository() throws SQLException{
+        con = FabricaDeConexao.obterConexao();
     }
 
-    public void Salvar(VacinaModel vacina){
-        String queryStr = "INSERT INTO Vacinas values(?1, ?2, ?3, ?4, ?5, ?6)";
+    public void Salvar(VacinaModel vacina) throws Exception{
+        String queryStr = "INSERT INTO Vacinas values(?, ?, ?, ?, ?, ?)";
         try {
-            EntityTransaction et = entityManager.getTransaction();
 
-            et.begin();
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, vacina.getId());
-            query.setParameter(2, vacina.getTitulo());
-            query.setParameter(3, vacina.getDescricao());
-            query.setParameter(4, vacina.getDoses());
-            query.setParameter(5, vacina.getPeriodicidade());
-            query.setParameter(6, vacina.getIntervalo());
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, vacina.getId());
+            query.setString(2, vacina.getTitulo());
+            query.setString(3, vacina.getDescricao());
+            query.setInt(4, vacina.getDoses());
+            query.setInt(5, vacina.getPeriodicidade());
+            query.setInt(6, vacina.getIntervalo());
             query.executeUpdate();
-            et.commit();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -39,22 +33,22 @@ public class VacinaRepository extends BaseRepository {
         }
     }
 
-    public List<VacinaModel> ObterTodos() {
+    public List<VacinaModel> ObterTodos() throws Exception {
         String queryStr = "select id, descricao, doses, intervalo, periodicidade, titulo from Vacinas";
         try {
             var vacinas = new ArrayList<VacinaModel>();
             
-            Query query = entityManager.createNativeQuery(queryStr);
-            List<Object[]> linhas = query.getResultList();
+            var query = con.prepareStatement(queryStr);
+            var result = query.executeQuery();
 
-            for (Object[] coluna : linhas) {
+            while (result.next()) {
                 var vacina = new VacinaModel();
-                vacina.setId(ObterRegistroInt(coluna[0]));
-                vacina.setDescricao(ObterRegistroString(coluna[1]));
-                vacina.setDoses(ObterRegistroInt(coluna[2]));
-                vacina.setIntervalo(ObterRegistroInt(coluna[3]));
-                vacina.setPeriodicidade(ObterRegistroInt(coluna[4]));
-                vacina.setTitulo(ObterRegistroString(coluna[5]));
+                vacina.setId(ObterRegistroInt(result, 1));
+                vacina.setDescricao(ObterRegistroString(result, 2));
+                vacina.setDoses(ObterRegistroInt(result, 3));
+                vacina.setIntervalo(ObterRegistroInt(result, 4));
+                vacina.setPeriodicidade(ObterRegistroInt(result, 5));
+                vacina.setTitulo(ObterRegistroString(result, 6));
                 vacinas.add(vacina);
             }
 
@@ -65,23 +59,23 @@ public class VacinaRepository extends BaseRepository {
         }
     }
 
-    public VacinaModel ObterPorId(int id) {
-        String queryStr = "select id, descricao, doses, intervalo, periodicidade, titulo from Vacinas where id = ?1";
+    public VacinaModel ObterPorId(int id) throws Exception {
+        String queryStr = "select id, descricao, doses, intervalo, periodicidade, titulo from Vacinas where id = ?";
         try {
             var vacinas = new ArrayList<VacinaModel>();
             
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, id);
-            List<Object[]> linhas = query.getResultList();
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, id);
+            var result = query.executeQuery();
 
-            for (Object[] coluna : linhas) {
+            while (result.next()) {
                 var vacina = new VacinaModel();
-                vacina.setId(ObterRegistroInt(coluna[0]));
-                vacina.setDescricao(ObterRegistroString(coluna[1]));
-                vacina.setDoses(ObterRegistroInt(coluna[2]));
-                vacina.setIntervalo(ObterRegistroInt(coluna[3]));
-                vacina.setPeriodicidade(ObterRegistroInt(coluna[4]));
-                vacina.setTitulo(ObterRegistroString(coluna[5]));
+                vacina.setId(ObterRegistroInt(result, 1));
+                vacina.setDescricao(ObterRegistroString(result, 2));
+                vacina.setDoses(ObterRegistroInt(result, 3));
+                vacina.setIntervalo(ObterRegistroInt(result, 4));
+                vacina.setPeriodicidade(ObterRegistroInt(result, 5));
+                vacina.setTitulo(ObterRegistroString(result, 6));
                 vacinas.add(vacina);
             }
 
@@ -94,32 +88,32 @@ public class VacinaRepository extends BaseRepository {
         }
     }
 
-    public int ObterId() {
+    public int ObterId() throws Exception {
         var queryStr = "select max(id) from Vacinas";
         
         try {
-            
-            Query query = entityManager.createNativeQuery(queryStr);
-            Object linha = query.getSingleResult();
+            var query = con.prepareStatement(queryStr);
+            var result = query.executeQuery();
 
-            var ultimoId = ObterRegistroInt(linha);
-            return ultimoId + 1;
+            if(result.next()){
+                var ultimoId = ObterRegistroInt(result, 1);
+                return ultimoId + 1;
+            }
+            
+            return 0;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
 
-    public void deletarPorId(int id) {
+    public void deletarPorId(int id) throws Exception {
         String queryStr = "DELETE FROM Vacinas where id = ?1";
         try {
-            EntityTransaction et = entityManager.getTransaction();
-
-            et.begin();
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, id);
+            
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, id);
             query.executeUpdate();
-            et.commit();
 
         } catch (Exception e) {
             e.printStackTrace();

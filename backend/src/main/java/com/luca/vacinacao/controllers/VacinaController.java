@@ -14,36 +14,33 @@ import com.luca.vacinacao.models.VacinaModel;
 import com.luca.vacinacao.repositories.VacinaRepository;
 
 import org.springframework.web.bind.annotation.*;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.PersistenceUnit;
 
 @CrossOrigin
 @RestController
 public class VacinaController {
-    @PersistenceUnit
-    private EntityManagerFactory entityManagerFactory;
+
 
     @PostMapping(value="vacinas/criar")
-    public void Inserir(@RequestBody VacinaDTO vacina) {
-        var repository = new VacinaRepository(entityManagerFactory);
+    public void Inserir(@RequestBody VacinaDTO vacina) throws Exception {
+        var repository = new VacinaRepository();
         var vacinaModel = vacina.ToModel();
         vacinaModel.setId(repository.ObterId());
         repository.Salvar(vacinaModel);
     }
     @GetMapping(value="vacinas/obter-todos")
-    public List<VacinaModel> ObterVarios() {
-        var repository = new VacinaRepository(entityManagerFactory);
+    public List<VacinaModel> ObterVarios() throws Exception {
+        var repository = new VacinaRepository();
         return repository.ObterTodos();
     }
     @GetMapping(value="vacinas/obter-por-id")
-    public VacinaModel ObterPorId(@RequestParam int id) {
-        var repository = new VacinaRepository(entityManagerFactory);
+    public VacinaModel ObterPorId(@RequestParam int id) throws Exception {
+        var repository = new VacinaRepository();
         return repository.ObterPorId(id);
     }
 
     @DeleteMapping(value="vacinas/excluir")
-    public void Excluir(@RequestBody DeletarDTO dto) {
-        var repository = new VacinaRepository(entityManagerFactory);
+    public void Excluir(@RequestBody DeletarDTO dto) throws Exception {
+        var repository = new VacinaRepository();
         repository.deletarPorId(dto.id);
     }
 }
