@@ -1,5 +1,7 @@
 package com.luca.vacinacao.repositories;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,30 +14,26 @@ import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Query;
 
 public class UsuarioRepository extends BaseRepository {
-    private EntityManager entityManager;
+    private Connection con;
 
-    public UsuarioRepository(EntityManagerFactory entityManagerFactory){
-        entityManager = entityManagerFactory.createEntityManager();
+    public UsuarioRepository() throws SQLException{
+        con = FabricaDeConexao.obterConexao();
     }
 
-    public void Salvar(UsuarioModel usuario) {
-        String queryStr = "INSERT INTO Usuarios values(?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)";
+    public void Salvar(UsuarioModel usuario) throws Exception {
+        String queryStr = "INSERT INTO Usuarios values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
-            EntityTransaction et = entityManager.getTransaction();
-
-            et.begin();
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, usuario.getId());
-            query.setParameter(2, usuario.getNome());
-            query.setParameter(3, usuario.getData_nascimento());
-            query.setParameter(4, usuario.getSexo());
-            query.setParameter(5, usuario.getLogradouro());
-            query.setParameter(6, usuario.getNumero());
-            query.setParameter(7, usuario.getSetor());
-            query.setParameter(8, usuario.getCidade());
-            query.setParameter(9, usuario.getUf());
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, usuario.getId());
+            query.setString(2, usuario.getNome());
+            query.setDate(3, new java.sql.Date(usuario.getData_nascimento().getTime()));
+            query.setString(4, usuario.getSexo());
+            query.setString(5, usuario.getLogradouro());
+            query.setInt(6, usuario.getNumero());
+            query.setString(7, usuario.getSetor());
+            query.setString(8, usuario.getCidade());
+            query.setString(9, usuario.getUf());
             query.executeUpdate();
-            et.commit();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -48,20 +46,20 @@ public class UsuarioRepository extends BaseRepository {
         try {
             var usuarios = new ArrayList<UsuarioModel>();
             
-            Query query = entityManager.createNativeQuery(queryStr);
-            List<Object[]> linhas = query.getResultList();
+            var query = con.prepareStatement(queryStr);
+            var result = query.executeQuery();
 
-            for (Object[] coluna : linhas) {
+            while (result.next()) {
                 var usuario = new UsuarioModel();
-                usuario.setId(ObterRegistroInt(coluna[0]));
-                usuario.setCidade(ObterRegistroString(coluna[1]));
-                usuario.setData_nascimento(ObterRegistroData(coluna[2]));
-                usuario.setLogradouro(ObterRegistroString(coluna[3]));
-                usuario.setNome(ObterRegistroString(coluna[4]));
-                usuario.setNumero(ObterRegistroInt(coluna[5]));
-                usuario.setSetor(ObterRegistroString(coluna[6]));
-                usuario.setSexo(ObterRegistroChar(coluna[7]));
-                usuario.setUf(ObterRegistroString(coluna[8]));
+                usuario.setId(ObterRegistroInt(result, 1));
+                usuario.setCidade(ObterRegistroString(result, 2));
+                usuario.setData_nascimento(ObterRegistroData(result, 3));
+                usuario.setLogradouro(ObterRegistroString(result, 4));
+                usuario.setNome(ObterRegistroString(result, 5));
+                usuario.setNumero(ObterRegistroInt(result, 6));
+                usuario.setSetor(ObterRegistroString(result, 7));
+                usuario.setSexo(ObterRegistroChar(result, 8));
+                usuario.setUf(ObterRegistroString(result, 9));
                 usuarios.add(usuario);
             }
 
@@ -77,16 +75,20 @@ public class UsuarioRepository extends BaseRepository {
         }
     }
 
-    public int ObterId() {
+    public int ObterId() throws Exception {
         var queryStr = "select max(id) from Usuarios";
         
         try {
             
-            Query query = entityManager.createNativeQuery(queryStr);
-            Object linha = query.getSingleResult();
+            var query = con.prepareStatement(queryStr);
+            var result = query.executeQuery();
 
-            var ultimoId = ObterRegistroInt(linha);
-            return ultimoId + 1;
+            if(result.next()){
+                var ultimoId = ObterRegistroInt(result, 1);
+                return ultimoId + 1;
+            }
+
+            return 0;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -94,25 +96,25 @@ public class UsuarioRepository extends BaseRepository {
     }
 
     public UsuarioModel ObterPorId(int id) throws Exception {
-        String queryStr = "select id, cidade, data_nascimento, logradouro, nome, numero, setor, sexo, uf from Usuarios where id = ?1";
+        String queryStr = "select id, cidade, data_nascimento, logradouro, nome, numero, setor, sexo, uf from Usuarios where id = ?";
         try {
             var usuarios = new ArrayList<UsuarioModel>();
             
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, id);
-            List<Object[]> linhas = query.getResultList();
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, id);
+            var result = query.executeQuery();
 
-            for (Object[] coluna : linhas) {
+            while(result.next()) {
                 var usuario = new UsuarioModel();
-                usuario.setId(ObterRegistroInt(coluna[0]));
-                usuario.setCidade(ObterRegistroString(coluna[1]));
-                usuario.setData_nascimento(ObterRegistroData(coluna[2]));
-                usuario.setLogradouro(ObterRegistroString(coluna[3]));
-                usuario.setNome(ObterRegistroString(coluna[4]));
-                usuario.setNumero(ObterRegistroInt(coluna[5]));
-                usuario.setSetor(ObterRegistroString(coluna[6]));
-                usuario.setSexo(ObterRegistroChar(coluna[7]));
-                usuario.setUf(ObterRegistroString(coluna[8]));
+                usuario.setId(ObterRegistroInt(result, 1));
+                usuario.setCidade(ObterRegistroString(result, 2));
+                usuario.setData_nascimento(ObterRegistroData(result, 3));
+                usuario.setLogradouro(ObterRegistroString(result, 4));
+                usuario.setNome(ObterRegistroString(result, 5));
+                usuario.setNumero(ObterRegistroInt(result, 6));
+                usuario.setSetor(ObterRegistroString(result, 7));
+                usuario.setSexo(ObterRegistroChar(result, 8));
+                usuario.setUf(ObterRegistroString(result, 9));
                 usuarios.add(usuario);
             }
 
@@ -130,16 +132,12 @@ public class UsuarioRepository extends BaseRepository {
         }
     }
 
-    public void deletarPorId(int id) {
-        String queryStr = "DELETE FROM Usuarios where id = ?1";
+    public void deletarPorId(int id) throws Exception {
+        String queryStr = "DELETE FROM Usuarios where id = ?";
         try {
-            EntityTransaction et = entityManager.getTransaction();
-
-            et.begin();
-            Query query = entityManager.createNativeQuery(queryStr);
-            query.setParameter(1, id);
+            var query = con.prepareStatement(queryStr);
+            query.setInt(1, id);
             query.executeUpdate();
-            et.commit();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -147,18 +145,13 @@ public class UsuarioRepository extends BaseRepository {
         }
     }
 
-    public void associarUsuarioAlergia(List<UsuarioAlergiaDTO> dtos) {
-        String queryStr = "DELETE FROM UsuariosAlergias where usuarioid = ?1";
+    public void associarUsuarioAlergia(List<UsuarioAlergiaDTO> dtos) throws Exception {
+        String queryStr = "DELETE FROM UsuariosAlergias where usuarioid = ?";
             try {
-                EntityTransaction et = entityManager.getTransaction();
-
-                et.begin();
-                Query query = entityManager.createNativeQuery(queryStr);
-                query.setParameter(1, dtos.get(0).usuarioId);
+                
+                var query = con.prepareStatement(queryStr);
+                query.setInt(1, dtos.get(0).usuarioId);
                 query.executeUpdate();
-                
-                
-                et.commit();
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -166,16 +159,12 @@ public class UsuarioRepository extends BaseRepository {
             }   
 
         for (UsuarioAlergiaDTO relacao : dtos) {
-            String queryz = "INSERT INTO UsuariosAlergias values(?1, ?2)";
+            String queryzz = "INSERT INTO UsuariosAlergias values(?, ?)";
             try {
-                EntityTransaction et = entityManager.getTransaction();
-
-                et.begin();
-                Query query = entityManager.createNativeQuery(queryz);
-                query.setParameter(1, relacao.usuarioId);
-                query.setParameter(2, relacao.alergiaId);
+                var query = con.prepareStatement(queryzz);
+                query.setInt(1, relacao.usuarioId);
+                query.setInt(2, relacao.alergiaId);
                 query.executeUpdate();
-                et.commit();
 
             } catch (Exception e) {
                 e.printStackTrace();

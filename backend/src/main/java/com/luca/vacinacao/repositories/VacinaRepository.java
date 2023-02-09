@@ -108,7 +108,7 @@ public class VacinaRepository extends BaseRepository {
     }
 
     public void deletarPorId(int id) throws Exception {
-        String queryStr = "DELETE FROM Vacinas where id = ?1";
+        String queryStr = "DELETE FROM Vacinas where id = ?";
         try {
             
             var query = con.prepareStatement(queryStr);

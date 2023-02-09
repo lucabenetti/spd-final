@@ -23,36 +23,33 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class UsuarioController {
 
-    @PersistenceUnit
-    private EntityManagerFactory entityManagerFactory;
-
     @PostMapping(value="usuarios/criar")
-    public void Inserir(@RequestBody UsuarioDTO usuario) {
-        var repository = new UsuarioRepository(entityManagerFactory);
+    public void Inserir(@RequestBody UsuarioDTO usuario) throws Exception {
+        var repository = new UsuarioRepository();
         var usuarioModel = usuario.ToModel();
         usuarioModel.setId(repository.ObterId());
         repository.Salvar(usuarioModel);
     }
     @GetMapping(value="usuarios/obter-todos")
     public List<UsuarioModel> ObterVarios() throws Exception {
-        var repository = new UsuarioRepository(entityManagerFactory);
+        var repository = new UsuarioRepository();
         return repository.ObterTodos();
     }
     @GetMapping(value="usuarios/obter-por-id")
     public UsuarioModel ObterPorId(@RequestParam int id) throws Exception {
-        var repository = new UsuarioRepository(entityManagerFactory);
+        var repository = new UsuarioRepository();
         return repository.ObterPorId(id);
     }
     
     @DeleteMapping(value="usuarios/excluir")
-    public void Excluir(@RequestBody DeletarDTO dto) {
-        var repository = new UsuarioRepository(entityManagerFactory);
+    public void Excluir(@RequestBody DeletarDTO dto) throws Exception {
+        var repository = new UsuarioRepository();
         repository.deletarPorId(dto.id);
     }
 
     @PutMapping(value="usuarios/associar-usuario-alergia")
-    public void Excluir(@RequestBody List<UsuarioAlergiaDTO> dto) {
-        var repository = new UsuarioRepository(entityManagerFactory);
+    public void Excluir(@RequestBody List<UsuarioAlergiaDTO> dto) throws Exception {
+        var repository = new UsuarioRepository();
         repository.associarUsuarioAlergia(dto);
     }
 }

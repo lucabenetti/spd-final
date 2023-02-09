@@ -15,7 +15,7 @@ public class AlergiaRepository extends BaseRepository {
     }
 
     public List<AlergiaModel> ObterAlergiasAssociadasAoUsuario(int usuarioId) throws Exception{
-        String queryStr = "select Alergias.id, Alergias.nome from UsuariosAlergias left join Alergias on alergiaid = Alergias.id where usuarioid = ?1";
+        String queryStr = "select Alergias.id, Alergias.nome from UsuariosAlergias left join Alergias on alergiaid = Alergias.id where usuarioid = ?";
         try {
             var alergias = new ArrayList<AlergiaModel>();
             
@@ -117,7 +117,7 @@ public class AlergiaRepository extends BaseRepository {
     }
 
     public void deletarPorId(int id) throws Exception {
-        String queryStr = "DELETE FROM Alergias where id = ?1";
+        String queryStr = "DELETE FROM Alergias where id = ?";
         try {
 
             var query = con.prepareStatement(queryStr);

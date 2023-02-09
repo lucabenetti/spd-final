@@ -92,30 +92,30 @@ public class AgendaRepository extends BaseRepository {
 
             while (resultado.next()) {
                 var agenda = new AgendaModel();
-                agenda.setId(ObterRegistroInt(resultado, 0));
-                agenda.setData(ObterRegistroData(resultado, 1));
-                agenda.setSituacao(ObterRegistroString(resultado, 2));
-                agenda.setData_situacao(ObterRegistroData(resultado, 3));
-                agenda.setObservacoes(ObterRegistroString(resultado, 4));
+                agenda.setId(ObterRegistroInt(resultado, 1));
+                agenda.setData(ObterRegistroData(resultado, 2));
+                agenda.setSituacao(ObterRegistroString(resultado, 3));
+                agenda.setData_situacao(ObterRegistroData(resultado, 4));
+                agenda.setObservacoes(ObterRegistroString(resultado, 5));
 
                 var vacina = new VacinaModel();
-                vacina.setId(ObterRegistroInt(resultado, 5));
-                vacina.setDescricao(ObterRegistroString(resultado, 6));
-                vacina.setDoses(ObterRegistroInt(resultado, 7));
-                vacina.setIntervalo(ObterRegistroInt(resultado, 8));
-                vacina.setPeriodicidade(ObterRegistroInt(resultado, 9));
-                vacina.setTitulo(ObterRegistroString(resultado, 10));
+                vacina.setId(ObterRegistroInt(resultado, 6));
+                vacina.setDescricao(ObterRegistroString(resultado, 7));
+                vacina.setDoses(ObterRegistroInt(resultado, 8));
+                vacina.setIntervalo(ObterRegistroInt(resultado, 9));
+                vacina.setPeriodicidade(ObterRegistroInt(resultado, 10));
+                vacina.setTitulo(ObterRegistroString(resultado, 11));
 
                 var usuario = new UsuarioModel();
-                usuario.setId(ObterRegistroInt(resultado, 11));
-                usuario.setNome(ObterRegistroString(resultado, 12));
-                usuario.setData_nascimento(ObterRegistroData(resultado, 13));
-                usuario.setSexo(ObterRegistroChar(resultado, 14));
-                usuario.setLogradouro(ObterRegistroString(resultado, 15));
-                usuario.setNumero(ObterRegistroInt(resultado, 16));
-                usuario.setSetor(ObterRegistroString(resultado, 17));
-                usuario.setUf(ObterRegistroString(resultado, 18));
-                usuario.setCidade(ObterRegistroString(resultado, 19));
+                usuario.setId(ObterRegistroInt(resultado, 12));
+                usuario.setNome(ObterRegistroString(resultado, 13));
+                usuario.setData_nascimento(ObterRegistroData(resultado, 14));
+                usuario.setSexo(ObterRegistroChar(resultado, 15));
+                usuario.setLogradouro(ObterRegistroString(resultado, 16));
+                usuario.setNumero(ObterRegistroInt(resultado, 17));
+                usuario.setSetor(ObterRegistroString(resultado, 18));
+                usuario.setUf(ObterRegistroString(resultado, 19));
+                usuario.setCidade(ObterRegistroString(resultado, 20));
                 
                 agenda.setUsuario(usuario);
                 agenda.setVacina(vacina);
@@ -216,30 +216,30 @@ public class AgendaRepository extends BaseRepository {
 
             while (resultado.next()) {
                 var agenda = new AgendaModel();
-                agenda.setId(ObterRegistroInt(resultado, 0));
-                agenda.setData(ObterRegistroData(resultado, 1));
-                agenda.setSituacao(ObterRegistroString(resultado, 2));
-                agenda.setData_situacao(ObterRegistroData(resultado, 3));
-                agenda.setObservacoes(ObterRegistroString(resultado, 4));
+                agenda.setId(ObterRegistroInt(resultado, 1));
+                agenda.setData(ObterRegistroData(resultado, 2));
+                agenda.setSituacao(ObterRegistroString(resultado, 3));
+                agenda.setData_situacao(ObterRegistroData(resultado, 4));
+                agenda.setObservacoes(ObterRegistroString(resultado, 5));
 
                 var vacina = new VacinaModel();
-                vacina.setId(ObterRegistroInt(resultado, 5));
-                vacina.setDescricao(ObterRegistroString(resultado, 6));
-                vacina.setDoses(ObterRegistroInt(resultado, 7));
-                vacina.setIntervalo(ObterRegistroInt(resultado, 8));
-                vacina.setPeriodicidade(ObterRegistroInt(resultado, 9));
-                vacina.setTitulo(ObterRegistroString(resultado, 10));
+                vacina.setId(ObterRegistroInt(resultado, 6));
+                vacina.setDescricao(ObterRegistroString(resultado, 7));
+                vacina.setDoses(ObterRegistroInt(resultado, 8));
+                vacina.setIntervalo(ObterRegistroInt(resultado, 9));
+                vacina.setPeriodicidade(ObterRegistroInt(resultado, 10));
+                vacina.setTitulo(ObterRegistroString(resultado, 11));
 
                 var usuario = new UsuarioModel();
-                usuario.setId(ObterRegistroInt(resultado, 11));
-                usuario.setNome(ObterRegistroString(resultado, 12));
-                usuario.setData_nascimento(ObterRegistroData(resultado, 13));
-                usuario.setSexo(ObterRegistroChar(resultado, 14));
-                usuario.setLogradouro(ObterRegistroString(resultado, 15));
-                usuario.setNumero(ObterRegistroInt(resultado, 16));
-                usuario.setSetor(ObterRegistroString(resultado, 17));
-                usuario.setUf(ObterRegistroString(resultado, 18));
-                usuario.setCidade(ObterRegistroString(resultado, 19));
+                usuario.setId(ObterRegistroInt(resultado, 12));
+                usuario.setNome(ObterRegistroString(resultado, 13));
+                usuario.setData_nascimento(ObterRegistroData(resultado, 14));
+                usuario.setSexo(ObterRegistroChar(resultado, 15));
+                usuario.setLogradouro(ObterRegistroString(resultado, 16));
+                usuario.setNumero(ObterRegistroInt(resultado, 17));
+                usuario.setSetor(ObterRegistroString(resultado, 18));
+                usuario.setUf(ObterRegistroString(resultado, 19));
+                usuario.setCidade(ObterRegistroString(resultado, 20));
                 
                 agenda.setUsuario(usuario);
                 agenda.setVacina(vacina);
